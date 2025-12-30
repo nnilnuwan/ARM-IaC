@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+
+  "parameters": {
+    "resourceGroupName": { "value": "rg-prod-compute" },
+    "location": { "value": "eastus" },
+
+    "availabilityZone": { "value": "1" },
+
+    "vmName": { "value": "vm-prod-01" },
+    "vmSize": { "value": "Standard_D4s_v5" },
+    "vmArchitecture": { "value": "x64" },
+
+    "adminUsername": { "value": "azureadmin" },
+    "adminPassword": { "value": "P@ssw0rd123!" },
+
+    "vnetName": { "value": "vnet-prod-01" },
+    "vnetAddressSpace": { "value": "10.10.0.0/16" },
+
+    "subnetName": { "value": "subnet-app" },
+    "subnetAddressPrefix": { "value": "10.10.1.0/24" },
+
+    "existingNsgName": { "value": "nsg-prod-app" },
+
+    "osPublisher": { "value": "Canonical" },
+    "osOffer": { "value": "0001-com-ubuntu-server-jammy" },
+    "osSku": { "value": "22_04-lts-gen2" },
+    "osVersion": { "value": "latest" },
+
+    "osDiskType": { "value": "Premium_LRS" },
+    "osDiskSizeGB": { "value": 128 },
+
+    "enableDiagnostics": { "value": "Yes" },
+    "diagnosticsStorageAccountName": { "value": "diagstorageprod01" },
+
+    "tagsCreatedBy": { "value": "Nilnuwan" },
+    "tagsEnvironment": { "value": "Production" },
+    "tagsServiceCatalogue": { "value": "Compute" },
+    "tagsServiceOwner": { "value": "InfraTeam" }
+  }
+}

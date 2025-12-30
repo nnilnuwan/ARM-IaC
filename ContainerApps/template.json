@@ -1,0 +1,291 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "containerapps_ekfc_uat_hubbe_name": {
+            "defaultValue": "ekfc-uat-hubbe",
+            "type": "String"
+        },
+        "managedEnvironments_ekfc_uat_hubcae_externalid": {
+            "defaultValue": "/subscriptions/86fbe588-8934-482a-83eb-21c103759979/resourceGroups/EKFC-RGDIGUAT-EKFCHUB/providers/Microsoft.App/managedEnvironments/ekfc-uat-hubcae",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.App/containerapps",
+            "apiVersion": "2025-02-02-preview",
+            "name": "[parameters('containerapps_ekfc_uat_hubbe_name')]",
+            "location": "UAE North",
+            "kind": "containerapps",
+            "identity": {
+                "type": "None"
+            },
+            "properties": {
+                "managedEnvironmentId": "[parameters('managedEnvironments_ekfc_uat_hubcae_externalid')]",
+                "environmentId": "[parameters('managedEnvironments_ekfc_uat_hubcae_externalid')]",
+                "workloadProfileName": "Consumption",
+                "configuration": {
+                    "secrets": [
+                        {
+                            "name": "pms-pdf-api-key-salt"
+                        },
+                        {
+                            "name": "azure-email-clientsecret"
+                        },
+                        {
+                            "name": "datasource-password"
+                        },
+                        {
+                            "name": "datasource-username"
+                        },
+                        {
+                            "name": "account-key"
+                        },
+                        {
+                            "name": "azure-storage-account-name-public"
+                        },
+                        {
+                            "name": "client-id"
+                        },
+                        {
+                            "name": "tenant-id"
+                        },
+                        {
+                            "name": "pms-pdf-url"
+                        },
+                        {
+                            "name": "azure-storage-account-key-public"
+                        },
+                        {
+                            "name": "clientsecret"
+                        },
+                        {
+                            "name": "disciplinary-mail-id"
+                        },
+                        {
+                            "name": "endpoint"
+                        },
+                        {
+                            "name": "pms-pdf-api-key-password"
+                        },
+                        {
+                            "name": "endpoint-public"
+                        },
+                        {
+                            "name": "token-url"
+                        },
+                        {
+                            "name": "datasource-url"
+                        },
+                        {
+                            "name": "digital-datasource-jdbc"
+                        },
+                        {
+                            "name": "issuer-uri"
+                        },
+                        {
+                            "name": "merchantid"
+                        },
+                        {
+                            "name": "messages-datasource-url"
+                        },
+                        {
+                            "name": "blob-sas-token"
+                        },
+                        {
+                            "name": "jwt-issuer-ur"
+                        },
+                        {
+                            "name": "clientid"
+                        },
+                        {
+                            "name": "documentlinks-jdbc"
+                        },
+                        {
+                            "name": "pms-pdf-api-key-cipher-alg"
+                        },
+                        {
+                            "name": "datasource-url-jdbc"
+                        },
+                        {
+                            "name": "azure-storage-account-name"
+                        }
+                    ],
+                    "activeRevisionsMode": "Single",
+                    "ingress": {
+                        "external": true,
+                        "targetPort": 8080,
+                        "exposedPort": 0,
+                        "transport": "Auto",
+                        "traffic": [
+                            {
+                                "weight": 100,
+                                "latestRevision": true
+                            }
+                        ],
+                        "allowInsecure": true,
+                        "clientCertificateMode": "Ignore",
+                        "stickySessions": {
+                            "affinity": "none"
+                        }
+                    },
+                    "registries": [
+                        {
+                            "server": "ekfcdiguatacrint-hggrbue7d5f4h8gx.azurecr.io",
+                            "identity": "system-environment"
+                        }
+                    ],
+                    "identitySettings": [],
+                    "maxInactiveRevisions": 100
+                },
+                "template": {
+                    "containers": [
+                        {
+                            "image": "ekfcdiguatacrint-hggrbue7d5f4h8gx.azurecr.io/one/backend/uat:uat_5208",
+                            "imageType": "ContainerImage",
+                            "name": "[parameters('containerapps_ekfc_uat_hubbe_name')]",
+                            "env": [
+                                {
+                                    "name": "azure-storage-account-name",
+                                    "secretRef": "azure-storage-account-name"
+                                },
+                                {
+                                    "name": "azure-storage-account-key",
+                                    "secretRef": "account-key"
+                                },
+                                {
+                                    "name": "token-url",
+                                    "secretRef": "token-url"
+                                },
+                                {
+                                    "name": "clientsecret",
+                                    "secretRef": "clientsecret"
+                                },
+                                {
+                                    "name": "datasource-password",
+                                    "secretRef": "datasource-password"
+                                },
+                                {
+                                    "name": "blob-sas-token",
+                                    "secretRef": "blob-sas-token"
+                                },
+                                {
+                                    "name": "jwt-issuer-url",
+                                    "secretRef": "jwt-issuer-ur"
+                                },
+                                {
+                                    "name": "tenant-id",
+                                    "secretRef": "tenant-id"
+                                },
+                                {
+                                    "name": "marchantid",
+                                    "secretRef": "merchantid"
+                                },
+                                {
+                                    "name": "account-key",
+                                    "secretRef": "account-key"
+                                },
+                                {
+                                    "name": "datasource-username",
+                                    "secretRef": "datasource-username"
+                                },
+                                {
+                                    "name": "endpoint",
+                                    "secretRef": "endpoint"
+                                },
+                                {
+                                    "name": "azureemail-clientsecret",
+                                    "secretRef": "azure-email-clientsecret"
+                                },
+                                {
+                                    "name": "datasource-url",
+                                    "secretRef": "datasource-url"
+                                },
+                                {
+                                    "name": "clientid",
+                                    "secretRef": "clientid"
+                                },
+                                {
+                                    "name": "datasource-url-jdbc",
+                                    "secretRef": "datasource-url-jdbc"
+                                },
+                                {
+                                    "name": "digital-datasource-url",
+                                    "secretRef": "digital-datasource-jdbc"
+                                },
+                                {
+                                    "name": "messages-datasource-url",
+                                    "secretRef": "messages-datasource-url"
+                                },
+                                {
+                                    "name": "documentlinks-datasource-url",
+                                    "secretRef": "documentlinks-jdbc"
+                                },
+                                {
+                                    "name": "issuer-uri",
+                                    "secretRef": "issuer-uri"
+                                },
+                                {
+                                    "name": "disciplinary-mail-id",
+                                    "secretRef": "disciplinary-mail-id"
+                                },
+                                {
+                                    "name": "PMS_PDF_URL",
+                                    "value": "https://hr-pms-api-uat.thankfulsand-bdae372c.uaenorth.azurecontainerapps.io/pmsapi/restapi/generatePerformancePDF"
+                                },
+                                {
+                                    "name": "PMS_PDF_API_KEY_SALT",
+                                    "secretRef": "pms-pdf-api-key-salt"
+                                },
+                                {
+                                    "name": "PMS_PDF_API_KEY_PASSWORD",
+                                    "secretRef": "pms-pdf-api-key-password"
+                                },
+                                {
+                                    "name": "PMS_PDF_API_KEY_CIPHER_ALG",
+                                    "secretRef": "pms-pdf-api-key-cipher-alg"
+                                },
+                                {
+                                    "name": "ENDPOINT_PUBLIC",
+                                    "secretRef": "endpoint-public"
+                                },
+                                {
+                                    "name": "AZURE_STORAGE_ACCOUNT_NAME_PUBLIC",
+                                    "secretRef": "azure-storage-account-name-public"
+                                },
+                                {
+                                    "name": "AZURE_STORAGE_ACCOUNT_KEY_PUBLIC",
+                                    "secretRef": "azure-storage-account-key-public"
+                                }
+                            ],
+                            "resources": {
+                                "cpu": 0.5,
+                                "memory": "1Gi"
+                            },
+                            "probes": []
+                        }
+                    ],
+                    "scale": {
+                        "minReplicas": 1,
+                        "maxReplicas": 1,
+                        "cooldownPeriod": 300,
+                        "pollingInterval": 30,
+                        "rules": [
+                            {
+                                "name": "http-scaler",
+                                "http": {
+                                    "metadata": {
+                                        "concurrentRequests": "10"
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "volumes": []
+                }
+            }
+        }
+    ]
+}

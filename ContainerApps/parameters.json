@@ -1,0 +1,12 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "containerapps_ekfc_uat_hubbe_name": {
+            "value": null
+        },
+        "managedEnvironments_ekfc_uat_hubcae_externalid": {
+            "value": null
+        }
+    }
+}

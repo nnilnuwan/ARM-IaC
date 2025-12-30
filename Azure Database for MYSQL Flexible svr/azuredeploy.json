@@ -1,0 +1,103 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "subscriptionId": {
+      "type": "string",
+      "metadata": {
+        "description": "Target subscription ID."
+      }
+    },
+    "resourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the resource group."
+      }
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Region for the resource group and server."
+      }
+    },
+    "serverName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the MySQL flexible server."
+      }
+    },
+    "availabilityZone": {
+      "type": "string",
+      "defaultValue": "NoPreference",
+      "allowedValues": [
+        "NoPreference",
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    "administratorLogin": {
+      "type": "string"
+    },
+    "administratorLoginPassword": {
+      "type": "securestring"
+    },
+    "workloadType": {
+      "type": "string",
+      "allowedValues": [
+        "Dev/Test",
+        "Standard",
+        "Enterprise"
+      ]
+    },
+    "highAvailabilityMode": {
+      "type": "string",
+      "allowedValues": [
+        "ZoneRedundant",
+        "Disabled"
+      ]
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-04-01",
+      "name": "[parameters('resourceGroupName')]",
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "name": "mysqlDeployment",
+      "resourceGroup": "[parameters('resourceGroupName')]",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+            {
+              "type": "Microsoft.DBforMySQL/flexibleServers",
+              "apiVersion": "2021-05-01",
+              "name": "[parameters('serverName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "administratorLogin": "[parameters('administratorLogin')]",
+                "administratorLoginPassword": "[parameters('administratorLoginPassword')]",
+                "availabilityZone": "[parameters('availabilityZone')]",
+                "workloadType": "[parameters('workloadType')]",
+                "highAvailability": {
+                  "mode": "[parameters('highAvailabilityMode')]"
+                },
+                "network": {
+                  "publicNetworkAccess": "Enabled"
+                }
+              }
+            }
+          ]
+        },
+        "parameters": {}
+      }
+    }
+  ]
+}

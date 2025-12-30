@@ -1,0 +1,105 @@
+
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentName": { "type": "string" },
+    "location": { "type": "string", "defaultValue": "[resourceGroup().location]" },
+
+    // Toggle for using your own VNet
+    "useExistingVNet": {
+      "type": "string",
+      "allowedValues": ["yes", "no"],
+      "defaultValue": "no"
+    },
+
+    // Only used when useExistingVNet = "yes"
+    "infrastructureSubnetId": { "type": "string", "defaultValue": "" },
+    "virtualIpType": {
+      "type": "string",
+      "allowedValues": ["Internal", "External"],
+      "defaultValue": "External"
+    },
+
+    // Optional infra RG naming (consumption-only may ignore)
+    "infrastructureResourceGroupName": { "type": "string", "defaultValue": "" },
+
+    // Zone redundancy (must be Disabled when useExistingVNet = "no")
+    "zoneRedundancy": {
+      "type": "string",
+      "allowedValues": ["Disabled", "Enabled"],
+      "defaultValue": "Disabled"
+    },
+
+    // Environment-level public access
+    "publicNetworkAccess": {
+      "type": "string",
+      "allowedValues": ["Enabled", "Disabled"],
+      "defaultValue": "Enabled"
+    },
+
+    // Monitoring (Don't save logs by default)
+    "logsDestination": {
+      "type": "string",
+      "allowedValues": ["none", "log-analytics", "azure-monitor"],
+      "defaultValue": "none"
+    },
+    "logAnalyticsWorkspaceResourceId": { "type": "string", "defaultValue": "" },
+
+    // Optional: workload profiles array (empty = consumption-only)
+    "workloadProfiles": { "type": "array", "defaultValue": [] }
+  },
+  "variables": {
+    "internalBool": "[equals(parameters('virtualIpType'), 'Internal')]",
+    "zrBool": "[equals(parameters('zoneRedundancy'), 'Enabled')]",
+
+    // vnetConfiguration: provided when 'yes', null when 'no'
+    "vnetConfiguration":
+      "[if(equals(parameters('useExistingVNet'), 'yes'), json(concat('{\"infrastructureSubnetId\":\"', parameters('infrastructureSubnetId'), '\",\"internal\":', if(variables('internalBool'), 'true', 'false'), '}')), json('null'))]",
+
+    // Infrastructure RG name only when using VNet and provided
+    "infraRG":
+      "[if(and(equals(parameters('useExistingVNet'), 'yes'), not(empty(parameters('infrastructureResourceGroupName')))), parameters('infrastructureResourceGroupName'), json('null'))]",
+
+    // Logging selection (none | Log Analytics | Azure Monitor)
+    "appLogsNone": "{\"destination\":\"\"}",
+    "appLogsAzureMonitor": "{\"destination\":\"azure-monitor\"}",
+    "appLogsLA":
+      "[concat('{\"destination\":\"log-analytics\",\"logAnalyticsConfiguration\":{\"customerId\":\"', reference(parameters('logAnalyticsWorkspaceResourceId'), '2022-10-01').customerId, '\",\"sharedKey\":\"', listKeys(parameters('logAnalyticsWorkspaceResourceId'), '2022-10-01').primarySharedKey, '\"}}')]",
+    "appLogs":
+      "[if(equals(parameters('logsDestination'),'none'), variables('appLogsNone'), if(equals(parameters('logsDestination'),'azure-monitor'), variables('appLogsAzureMonitor'), variables('appLogsLA')))]",
+
+    // Safety: zone redundancy must be false when not using VNet
+    "effectiveZoneRedundant":
+      "[if(equals(parameters('useExistingVNet'), 'no'), json('false'), variables('zrBool'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.App/managedEnvironments",
+      "apiVersion": "2024-03-01",
+      "name": "[parameters('environmentName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publicNetworkAccess": "[parameters('publicNetworkAccess')]",
+        "zoneRedundant": "[variables('effectiveZoneRedundant')]",
+
+        // When 'no' -> null (platform-managed VNet); when 'yes' -> subnet + internal/external
+        "vnetConfiguration": "[variables('vnetConfiguration')]",
+
+        // May be ignored for consumption-only environments
+        "infrastructureResourceGroup": "[variables('infraRG')]",
+
+        // Monitoring: "Don't save logs" by default
+        "appLogsConfiguration": "[json(variables('appLogs'))]",
+
+        // Optional workload profiles (empty => consumption-only)
+        "workloadProfiles": "[parameters('workloadProfiles')]"
+      }
+    }
+  ],
+  "outputs": {
+    "managedEnvironmentId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.App/managedEnvironments', parameters('environmentName'))]"
+       }
+  }

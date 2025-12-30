@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "subscriptionId": {
+      "value": "00000000-0000-0000-0000-000000000000"
+    },
+    "resourceGroupName": {
+      "value": "MyResourceGroup"
+    },
+    "location": {
+      "value": "eastus"
+    },
+    "serverName": {
+      "value": "myflexibleserverdemo"
+    },
+    "availabilityZone": {
+      "value": "NoPreference"
+    },
+    "administratorLogin": {
+      "value": "mysqladmin"
+    },
+    "administratorLoginPassword": {
+      "value": "YourStrongPassword123!"
+    },
+    "workloadType": {
+      "value": "Standard"
+    },
+    "highAvailabilityMode": {
+      "value": "Disabled"
+    }
+  }
+}

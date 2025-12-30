@@ -1,0 +1,180 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+
+  "parameters": {
+    "resourceGroupName": { "type": "string" },
+    "location": { "type": "string" },
+
+    "availabilityZone": {
+      "type": "string",
+      "allowedValues": ["1", "2", "3"]
+    },
+
+    "vmName": { "type": "string" },
+    "vmSize": { "type": "string" },
+
+    "vmArchitecture": {
+      "type": "string",
+      "allowedValues": ["x64", "arm64"]
+    },
+
+    "adminUsername": { "type": "string" },
+    "adminPassword": { "type": "secureString" },
+
+    "vnetName": { "type": "string" },
+    "vnetAddressSpace": { "type": "string" },
+
+    "subnetName": { "type": "string" },
+    "subnetAddressPrefix": { "type": "string" },
+
+    "existingNsgName": { "type": "string" },
+
+    "osPublisher": { "type": "string" },
+    "osOffer": { "type": "string" },
+    "osSku": { "type": "string" },
+    "osVersion": { "type": "string" },
+
+    "osDiskType": {
+      "type": "string",
+      "allowedValues": [
+        "Standard_LRS",
+        "StandardSSD_LRS",
+        "Premium_LRS"
+      ]
+    },
+    "osDiskSizeGB": { "type": "int" },
+
+    "enableDiagnostics": {
+      "type": "string",
+      "allowedValues": ["Yes", "No"]
+    },
+
+    "diagnosticsStorageAccountName": { "type": "string" },
+
+    "tagsCreatedBy": { "type": "string" },
+    "tagsEnvironment": { "type": "string" },
+    "tagsServiceCatalogue": { "type": "string" },
+    "tagsServiceOwner": { "type": "string" }
+  },
+
+  "variables": {
+    "nicName": "[concat(parameters('vmName'), '-nic')]",
+    "subnetId": "[resourceId(parameters('resourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
+  },
+
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2023-05-01",
+      "name": "[parameters('vnetName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetAddressSpace')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetAddressPrefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId(parameters('resourceGroupName'), 'Microsoft.Network/networkSecurityGroups', parameters('existingNsgName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2023-05-01",
+      "name": "[variables('nicName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[variables('subnetId')]"
+              },
+              "privateIPAllocationMethod": "Dynamic"
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2023-09-01",
+      "name": "[parameters('vmName')]",
+      "location": "[parameters('location')]",
+      "zones": [
+        "[parameters('availabilityZone')]"
+      ],
+
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+
+        "securityProfile": {
+          "securityType": "TrustedLaunch",
+          "uefiSettings": {
+            "secureBootEnabled": true,
+            "vTpmEnabled": true
+          }
+        },
+
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[parameters('osPublisher')]",
+            "offer": "[parameters('osOffer')]",
+            "sku": "[parameters('osSku')]",
+            "version": "[parameters('osVersion')]"
+          },
+          "osDisk": {
+            "createOption": "FromImage",
+            "diskSizeGB": "[parameters('osDiskSizeGB')]",
+            "managedDisk": {
+              "storageAccountType": "[parameters('osDiskType')]"
+            }
+          }
+        },
+
+        "osProfile": {
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId(parameters('resourceGroupName'), 'Microsoft.Network/networkInterfaces', variables('nicName'))]"
+            }
+          ]
+        },
+
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": "[equals(parameters('enableDiagnostics'),'Yes')]",
+            "storageUri": "[if(equals(parameters('enableDiagnostics'),'Yes'), concat('https://', parameters('diagnosticsStorageAccountName'), '.blob.core.windows.net'), json('null'))]"
+          }
+        }
+      },
+
+      "tags": {
+        "createdBy": "[parameters('tagsCreatedBy')]",
+        "environment": "[parameters('tagsEnvironment')]",
+        "serviceCatalogue": "[parameters('tagsServiceCatalogue')]",
+        "serviceOwner": "[parameters('tagsServiceOwner')]"
+      }
+    }
+  ]
+}
