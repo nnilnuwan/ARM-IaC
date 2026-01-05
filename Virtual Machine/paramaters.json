@@ -1,42 +1,90 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
-
   "parameters": {
-    "resourceGroupName": { "value": "rg-prod-compute" },
-    "location": { "value": "eastus" },
+    "vmResourceGroupName": {
+      "value": "EKFC-RGNPLOB-AIRPORTFNB"
+    },
+    "vnetResourceGroupName": {
+      "value": "EKFC-NETWORK-RG"
+    },
+    "nsgResourceGroupName": {
+      "value": "EKFC-SECURITY-RG"
+    },
 
-    "availabilityZone": { "value": "1" },
+    "location": {
+      "value": "UAENorth"
+    },
+    "availabilityZone": {
+      "value": "1"
+    },
 
-    "vmName": { "value": "vm-prod-01" },
-    "vmSize": { "value": "Standard_D4s_v5" },
-    "vmArchitecture": { "value": "x64" },
+    "vmName": {
+      "value": "EKFC-NPRD-AIRPORTWEB1"
+    },
+    "vmSize": {
+      "value": "Standard_F4s_v2"
+    },
+    "vmArchitecture": {
+      "value": "x64"
+    },
 
-    "adminUsername": { "value": "azureadmin" },
-    "adminPassword": { "value": "P@ssw0rd123!" },
+    "adminUsername": {
+      "value": "airportadmin"
+    },
+    "adminPassword": {
+      "value": "+1crudre?rLb"
+    },
 
-    "vnetName": { "value": "vnet-prod-01" },
-    "vnetAddressSpace": { "value": "10.10.0.0/16" },
+    "vnetName": {
+      "value": "EKFC-NONPRD-VNET"
+    },
+    "subnetName": {
+      "value": "NONPRD-APP-SNET"
+    },
 
-    "subnetName": { "value": "subnet-app" },
-    "subnetAddressPrefix": { "value": "10.10.1.0/24" },
+    "existingNsgName": {
+      "value": "EKFC-NONPRD-APPNSG"
+    },
 
-    "existingNsgName": { "value": "nsg-prod-app" },
+    "osPublisher": {
+      "value": "Canonical"
+    },
+    "osOffer": {
+      "value": "0001-com-ubuntu-server-jammy"
+    },
+    "osSku": {
+      "value": "24_04-lts-gen2"
+    },
+    "osVersion": {
+      "value": "latest"
+    },
 
-    "osPublisher": { "value": "Canonical" },
-    "osOffer": { "value": "0001-com-ubuntu-server-jammy" },
-    "osSku": { "value": "22_04-lts-gen2" },
-    "osVersion": { "value": "latest" },
+    "osDiskType": {
+      "value": "StandardSSD_LRS"
+    },
+    "osDiskSizeGB": {
+      "value": 32
+    },
 
-    "osDiskType": { "value": "Premium_LRS" },
-    "osDiskSizeGB": { "value": 128 },
+    "enableDiagnostics": {
+      "value": "No"
+    },
+    "diagnosticsStorageAccountName": {
+      "value": "diagstorageprod01"
+    },
 
-    "enableDiagnostics": { "value": "Yes" },
-    "diagnosticsStorageAccountName": { "value": "diagstorageprod01" },
-
-    "tagsCreatedBy": { "value": "Nilnuwan" },
-    "tagsEnvironment": { "value": "Production" },
-    "tagsServiceCatalogue": { "value": "Compute" },
-    "tagsServiceOwner": { "value": "InfraTeam" }
+    "tagsCreatedBy": {
+      "value": "Nilnuwan"
+    },
+    "tagsEnvironment": {
+      "value": "Production"
+    },
+    "tagsServiceCatalogue": {
+      "value": "Compute"
+    },
+    "tagsServiceOwner": {
+      "value": "InfraTeam"
+    }
   }
 }

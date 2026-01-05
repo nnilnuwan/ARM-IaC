@@ -3,7 +3,10 @@
   "contentVersion": "1.0.0.0",
 
   "parameters": {
-    "resourceGroupName": { "type": "string" },
+    "vmResourceGroupName": { "type": "string" },
+    "vnetResourceGroupName": { "type": "string" },
+    "nsgResourceGroupName": { "type": "string" },
+
     "location": { "type": "string" },
 
     "availabilityZone": {
@@ -23,10 +26,7 @@
     "adminPassword": { "type": "secureString" },
 
     "vnetName": { "type": "string" },
-    "vnetAddressSpace": { "type": "string" },
-
     "subnetName": { "type": "string" },
-    "subnetAddressPrefix": { "type": "string" },
 
     "existingNsgName": { "type": "string" },
 
@@ -60,41 +60,20 @@
 
   "variables": {
     "nicName": "[concat(parameters('vmName'), '-nic')]",
-    "subnetId": "[resourceId(parameters('resourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
+    "subnetId": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]",
+    "nsgId": "[resourceId(parameters('nsgResourceGroupName'), 'Microsoft.Network/networkSecurityGroups', parameters('existingNsgName'))]"
   },
 
   "resources": [
-    {
-      "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2023-05-01",
-      "name": "[parameters('vnetName')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[parameters('vnetAddressSpace')]"
-          ]
-        },
-        "subnets": [
-          {
-            "name": "[parameters('subnetName')]",
-            "properties": {
-              "addressPrefix": "[parameters('subnetAddressPrefix')]",
-              "networkSecurityGroup": {
-                "id": "[resourceId(parameters('resourceGroupName'), 'Microsoft.Network/networkSecurityGroups', parameters('existingNsgName'))]"
-              }
-            }
-          }
-        ]
-      }
-    },
-
     {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2023-05-01",
       "name": "[variables('nicName')]",
       "location": "[parameters('location')]",
       "properties": {
+        "networkSecurityGroup": {
+          "id": "[variables('nsgId')]"
+        },
         "ipConfigurations": [
           {
             "name": "ipconfig1",
@@ -117,7 +96,6 @@
       "zones": [
         "[parameters('availabilityZone')]"
       ],
-
       "properties": {
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
@@ -156,15 +134,15 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId(parameters('resourceGroupName'), 'Microsoft.Network/networkInterfaces', variables('nicName'))]"
+              "id": "[resourceId(parameters('vmResourceGroupName'), 'Microsoft.Network/networkInterfaces', variables('nicName'))]"
             }
           ]
         },
 
         "diagnosticsProfile": {
           "bootDiagnostics": {
-            "enabled": "[equals(parameters('enableDiagnostics'),'Yes')]",
-            "storageUri": "[if(equals(parameters('enableDiagnostics'),'Yes'), concat('https://', parameters('diagnosticsStorageAccountName'), '.blob.core.windows.net'), json('null'))]"
+            "enabled": "[equals(parameters('enableDiagnostics'), 'Yes')]",
+            "storageUri": "[if(equals(parameters('enableDiagnostics'), 'Yes'), concat('https://', parameters('diagnosticsStorageAccountName'), '.blob.core.windows.net'), json('null'))]"
           }
         }
       },
